@@ -17,3 +17,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/workshop
+CODE_OF_CONDUCT.md
+PhpStorm_Reference_Card.pdf
