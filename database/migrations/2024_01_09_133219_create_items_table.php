@@ -18,7 +18,9 @@ return new class extends Migration
             $table->string('Items', 255);
             $table->datetime('insertDate')->default(now());
             $table->datetime('buyDate')->nullable();
-            $table->enum('nakupljeno', [0, 1])->default(0);
+            $table->tinyInteger('nakupljeno')->default(0);
+            $table->tinyInteger('deleteItem')->default(0);
+            $table->datetime('deleteDay')->nullable();
             $table->timestamps();
         });
     }

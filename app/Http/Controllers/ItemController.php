@@ -10,14 +10,14 @@ class ItemController extends Controller
 {
     public function index()
     {
-        $items = Item::all();
+        $items = Item::where('deleteItem', 0)->get();
 
         return view('items.index', compact('items'));
     }
 
     public function IndexApi()
     {
-        $items = Item::all();
+        $items = Item::where('deleteItem', 0)->get();
 
         echo json_encode($items);
     }
@@ -77,9 +77,26 @@ class ItemController extends Controller
         // Logic to toggle the 'nakupljeno' field for a specific item
         $item = Item::findOrFail($id);
         $item->nakupljeno = !$item->nakupljeno;
+        $item->buyDate = (($item->nakupljeno == 1)?date('Y-m-d H:i:s',time()):$item->buyDate);
         $item->save();
 
-        return response()->json(['success' => true]);
+        $response = ($item->nakupljeno)?1:0;
+        return response()->json(['success' => $response]);
     }
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Item  $item
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Item $item,$id)
+    {
+        $item = Item::findOrFail($id);
+        $item->deleteItem = 1;
+        $item->deleteDay = date('Y-m-d H:i:s',time());
+        $item->save();
+
+        return response()->json(['message' => 'Item deleted successfully']);
+    }
 }
