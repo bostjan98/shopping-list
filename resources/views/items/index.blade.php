@@ -13,19 +13,19 @@
         <div class="row">
             <div class="col-md-12 mb-12" v-for="item in items" :key="item.id">
                 <div class="card">
-                    <div class="card-body d-flex align-items-center">
-                        <div class="col-md-1">
+                    <div class="card-body d-md-flex align-items-center flex-column flex-md-row">
+                        <div class="col-12 col-md-1 mb-2 mb-md-0">
                             <!-- Display the checkbox or "KUPLJENO" badge based on nakupljeno -->
                             <input v-if="!item.nakupljeno" type="checkbox" :checked="item.nakupljeno == 1" :disabled="item.nakupljeno == 1" @change="updateNakupljeno(item)">
                             <span v-else>&#128176</span>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-12 col-md-3 text-center text-md-left mb-2 mb-md-0">
                             <p class="card-text">@{{ item.quantity }} @{{ item.measure }}</p>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-12 col-md-6 text-center text-md-left mb-2 mb-md-0">
                             <h4 class="card-title" v-html="item.displayedItems"></h4>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-12 col-md-2 text-center text-md-right">
                             <div class="btn-group">
                                 <!-- Display the "Edit" button if nakupljeno is false -->
                                 <a v-if="!item.nakupljeno" :href="'/items/' + item.id + '/edit'" class="btn btn-sm btn-primary" style="width:70px;padding:5px;">Edit</a>
