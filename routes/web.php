@@ -21,8 +21,6 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-
-
 Route::controller(LoginRegisterController::class)->group(function() {
     Route::get('/register', 'register')->name('register');
     Route::post('/store', 'store')->name('store');
@@ -32,17 +30,15 @@ Route::controller(LoginRegisterController::class)->group(function() {
     Route::post('/logout', 'logout')->name('logout');
 });
 
-
 Route::get('/items', [ItemController::class, 'index'])->name('items.index');
 Route::get('/apiItems', [ItemController::class, 'indexApi']);
-
 Route::get('/items/{id}/edit', [ItemController::class, 'editForm'])->name('items.edit');
 Route::put('/items/{id}', [ItemController::class, 'update'])->name('items.update');
 Route::get('/items/create', [ItemController::class, 'createForm'])->name('items.create');
 Route::post('/items', [ItemController::class, 'store'])->name('items.store');
-#Route::post('/items/{id}/toggle-nakupljeno', [ItemController::class, 'toggleNakupljeno'])->name('items.toggle-nakupljeno');
-Route::view('/{any}', 'items.index')->where('any', '.*');
 Route::post('/items/{id}/toggle-nakupljeno', [ItemController::class, 'toggleNakupljenoAjax'])->name('items.toggle-nakupljeno');
 Route::delete('/items/{id}', [ItemController::class, 'destroy'])->name('items.destroy');
 
-
+Route::get('/{any}', function () {
+    return redirect()->route('items.index');
+})->where('any', '.*');
