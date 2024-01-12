@@ -16,7 +16,7 @@
         </div>
         <div class="row">
             <div class="col-md-12 mb-12" v-for="item in items" :key="item.id">
-                <div class="card">
+                <div class="card" :class="{ 'bg-grey': item.nakupljeno }">
                     <div class="card-body d-md-flex align-items-center flex-column flex-md-row">
                         <div class="col-12 col-md-1 mb-2 mb-md-0">
                             <!-- Display the checkbox or "KUPLJENO" badge based on nakupljeno -->
