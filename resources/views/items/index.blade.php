@@ -54,7 +54,6 @@
 
 <script>
     var itemsData = {!! json_encode($items) !!};
-    console.log(itemsData.data);
     new Vue({
     el: '#app',
     data: {
