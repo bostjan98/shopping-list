@@ -14,7 +14,7 @@ class ItemController extends Controller
     {
         if(Auth::check())
         {
-            $items = Item::where('deleteItem', 0)->get();
+            $items = Item::where('deleteItem', 0)->paginate(20);
             return view('items.index', compact('items'));
         };
         return redirect()->route('login');

@@ -9,7 +9,11 @@
                 <a href="{{ route('items.create') }}" class="btn btn-primary">Create Item</a>
             </div>
         </div>
-
+        <div class="row">
+            <div class="col-md-12" ref="pagination">
+                {{ $items->links('pagination::bootstrap-5') }}
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-12 mb-12" v-for="item in items" :key="item.id">
                 <div class="card">
@@ -37,6 +41,11 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <div class="col-md-12" ref="pagination">
+                {{ $items->links('pagination::bootstrap-5') }}
+            </div>
+        </div>
     </div>
 
     <!-- Include Vue.js from CDN -->
@@ -44,10 +53,12 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
+    var itemsData = {!! json_encode($items) !!};
+    console.log(itemsData.data);
     new Vue({
     el: '#app',
     data: {
-        items: {!! isset($items) ? json_encode($items) : '[]' !!},
+        items: itemsData.data,
     },
     methods: {
         updateNakupljeno(item) {
@@ -87,19 +98,71 @@
             axios.delete(`/items/${item.id}`)
                 .then(response => {
                     console.log('Success:', response.data);
-                    this.items = this.items.filter(i => i.id !== item.id);
+
+                    const index = this.items.findIndex(i => i.id === item.id);
+                    if (index !== -1) {
+                        this.items.splice(index, 1);
+
+                        // Check if there are more items on the current page
+                        if (this.items.length === 0) {
+                            // If the current page becomes empty, navigate to the previous page
+                            const currentPage = this.$route ? (parseInt(this.$route.params.page) || 1) : 1;
+                            console.log('page:'+currentPage);
+                            if (currentPage > 1) {
+                                this.fetchItems(currentPage - 1);
+                                this.$router.push({ name: this.$route.name, query: { page: currentPage - 1 } });
+                            }
+                        }
+                    }
                 })
                 .catch(error => {
-                    console.error('Error deleting item:', error.response.data);
+                    console.error('Error deleting item:', error.response ? error.response.data : error.message);
                 });
-        }
+        },
+        fetchItems(page = 1) {
+            axios.get(`/items?page=${page}`)
+                .then(response => {
+                    this.items = response.data && response.data.data ? response.data : { data: [] }; // Check if response.data and response.data.data are defined
+                    this.items.data.forEach(item => {
+                        item.displayedItems = item.nakupljeno == 1 ? `<del>${item.Items}</del>` : `<strong>${item.Items}</strong>`;
+                        item.disableCheckbox = false;
+                    });
+
+                    if (this.items.data.length === 0 && this.items.last_page > 0) {
+                        // If the current page becomes empty, navigate to the last page
+                        this.$router.push({ name: this.$route.name, query: { page: this.items.last_page } });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching items:', error.response ? error.response.data : error.message);
+                });
+            },
     },
     created() {
-        this.items.forEach(item => {
-            item.displayedItems = item.nakupljeno == 1 ? `<del>${item.Items}</del>` : `<strong>${item.Items}</strong>`;
-            item.disableCheckbox = false;
-        });
-    }
+        if (this.items.length > 0) {
+            this.items.forEach(item => {
+                item.displayedItems = item.nakupljeno == 1 ? `<del>${item.Items}</del>` : `<strong>${item.Items}</strong>`;
+                item.disableCheckbox = false;
+            });
+        } else {
+            this.fetchItems(this.$route.query.page || 1);
+            this.currentPage = parseInt(this.$route.query.page) || 1;
+        }
+    },
+    watch: {
+        // Use the beforeRouteUpdate guard to update the currentPage variable
+        '$route'() {
+            if (this.$route.query.page && this.$route.query.page !== 'undefined') {
+                this.fetchItems(this.$route.query.page);
+                this.currentPage = parseInt(this.$route.query.page); // Update the currentPage variable
+            }
+        },
+    },
+    beforeRouteUpdate(to, from, next) {
+        // Update the currentPage variable when the route is about to change
+        this.currentPage = parseInt(to.query.page) || 1;
+        next();
+    },
 });
 </script>
 @endsection
